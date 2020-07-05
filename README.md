@@ -1,9 +1,10 @@
 # buffer-cpp
 Header only Buffer class for C++.
 
-# Why?
+## Why?
 I made this for making Socket read-write operations easy.
 
+# Examples:
 ## - Writing to a buffer:
 ```cpp
 #include "Buffer.hpp"
