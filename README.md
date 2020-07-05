@@ -18,14 +18,28 @@ Buffer buffer(50); // Allocate 50 bytes
 buffer.writeInt32(a);
 buffer.writeInt16(b);
 buffer.writeInt8(c);
+buffer.buffer(); // {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA, 0xCC}
 
-// Get buffer data (const char*) and size:
+// You can write with offsets too:
+buffer.writeInt32(a, 0);
+buffer.writeInt16(b, 6);
+buffer.writeInt8(c, 10);
+buffer.buffer(); // {0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0xAA, 0xAA, 0, 0, 0xCC}
+
+// Get buffer data:
 buffer.buffer(); // const char* = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA, 0xCC};
 buffer.size(); // 7 bytes
+```
+- Writing char arrays to buffer:
+```cpp
+// You can write a char array to Buffer directly:
+char str1[] = "Hi there!";
+buffer.write(str1, strlen(str1));
 
-// You can write a char* to Buffer directly:
-char str[] = "Hi there!";
-buffer.write(str, 9);
+char str2[] = "Another sentence.";
+buffer.write(str2, strlen(str2), 15); // offset: 15
+
+buffer.buffer(); // "Hi there!______Another sentence._____________" (50 length buffer.)
 ```
 ## - Reading from a buffer:
 ```cpp
