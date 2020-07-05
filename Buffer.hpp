@@ -9,7 +9,7 @@ class Buffer
 public:
     explicit Buffer(int size)
     {
-        this->data = new char[size];
+        this->data = new char[size]{0};
     }
     ~Buffer()
     {
@@ -29,32 +29,41 @@ public:
         return (int8_t)this->data[offset];
     }
 
-    void writeInt32(uint32_t number, int offset = -1)
-    {
-        int offsetReal = offset == -1 ? length : offset;
+    void writeInt32(int32_t number, int offset = -1)
+    {        
+        int appendOffset = offset == -1 ? length : offset;
 
-        memcpy(this->data + offsetReal, &number, 4);
-        this->length += 4;
+        memcpy(this->data + appendOffset, &number, sizeof(int32_t));
+
+        if (appendOffset + sizeof(int32_t) > this->length)
+            this->length = appendOffset + sizeof(int32_t);        
     }
-    void writeInt16(uint16_t number, int offset = -1)
+    void writeInt16(int16_t number, int offset = -1)
     {
-        int offsetReal = offset == -1 ? length : offset;
+        int appendOffset = offset == -1 ? length : offset;
 
-        memcpy(this->data + offsetReal, &number, 2);
-        this->length += 2;
+        memcpy(this->data + appendOffset, &number, sizeof(int16_t));
+
+        if (appendOffset + sizeof(int16_t) > this->length)
+            this->length = appendOffset + sizeof(int16_t);  
     }
-    void writeInt8(uint8_t number, int offset = -1)
+    void writeInt8(int8_t number, int offset = -1)
     {
-        int offsetReal = offset == -1 ? length : offset;
+        int appendOffset = offset == -1 ? length : offset;
 
-        memcpy(this->data + offsetReal, &number, 1);
-        this->length += 1;
+        memcpy(this->data + appendOffset, &number, sizeof(int8_t));
+
+        if (appendOffset + sizeof(int8_t) > this->length)
+            this->length = appendOffset + sizeof(int8_t);  
     }
     void write(const char* buffer, uint32_t length, int offset = -1)
-    {
-        int offsetReal = offset == -1 ? this->length : offset;
-        memcpy(this->data + offsetReal, buffer, length);
-        this->length += length;
+    {        
+        int appendOffset = offset == -1 ? this->length : offset;
+
+        memcpy(this->data + appendOffset, buffer, length);
+
+        if (appendOffset + length > this->length)
+            this->length = appendOffset + length; 
     }
 
     uint32_t size() { return length; }
