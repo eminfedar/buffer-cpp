@@ -44,7 +44,7 @@ buffer.buffer(); // "Hi there!______Another sentence._____________" (50 length b
 ## - Reading from a buffer:
 ```cpp
 // Use already written buffer above:
-buffer.buffer(); // const char* = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA, 0xCC
+buffer.buffer(); // const char* = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA, 0xCC}
 
 int   a = buffer.readInt32(0);  // [0-3] {0xFF, 0xFF, 0xFF, 0xFF}
 short b = buffer.readInt16(4);  // [4-5] {0xAA, 0xAA}
