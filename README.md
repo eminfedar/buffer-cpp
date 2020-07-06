@@ -1,11 +1,8 @@
 # buffer-cpp
 Header only Buffer class for C++.
 
-## Why?
-I made this for making Socket read-write operations easy.
-
-# Examples:
-## - Writing to a buffer:
+## Examples:
+### Writing to a buffer:
 ```cpp
 #include "Buffer.hpp"
 
@@ -31,7 +28,7 @@ buffer.buffer(); // {0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0xAA, 0xAA, 0, 0, 0xCC}
 buffer.buffer(); // const char* = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA, 0xCC};
 buffer.size(); // 7 bytes
 ```
-- Writing char arrays to buffer:
+Writing char arrays to buffer:
 ```cpp
 // You can write a char array to Buffer directly:
 char str1[] = "Hi there!";
@@ -42,7 +39,7 @@ buffer.write(str2, strlen(str2), 15); // offset: 15
 
 buffer.buffer(); // "Hi there!______Another sentence._____________" (50 length buffer.)
 ```
-## - Reading from a buffer:
+### Reading from a buffer:
 ```cpp
 // Use already written buffer above:
 buffer.buffer(); // const char* = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xAA, 0xCC}
