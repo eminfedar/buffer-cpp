@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <algorithm>
 
 class Buffer
 {
@@ -14,6 +15,12 @@ public:
     ~Buffer()
     {
         delete this->data;
+    }
+
+    Buffer(Buffer&& bfr)
+    {
+        std::swap( this->data, bfr.data );
+        std::swap( this->length, bfr.length);
     }
 
     int32_t readInt32(int offset)
