@@ -10,7 +10,8 @@ class Buffer {
 public:
     // Constructor
     explicit Buffer(int n)
-        : data(new char[n] { 0 }), bufferCapacity(n)
+        : data(new char[n] { 0 })
+        , bufferCapacity(n)
     {
     }
 
@@ -34,7 +35,7 @@ public:
             return *this;
 
         delete[] data;
-        
+
         data = new char[other_bfr.capacity()];
         bufferLength = other_bfr.length();
         bufferCapacity = other_bfr.capacity();
