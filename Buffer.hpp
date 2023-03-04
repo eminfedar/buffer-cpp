@@ -1,84 +1,119 @@
 #ifndef FDR_BUFFER_HPP
 #define FDR_BUFFER_HPP
 
-#include <stdint.h>
-#include <string.h>
-#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
 
-class Buffer
-{
+class Buffer {
 public:
-    explicit Buffer(int size)
+    // Constructor
+    explicit Buffer(int n)
+        : data(new char[n] { 0 }), bufferCapacity(n)
     {
-        this->data = new char[size]{0};
     }
-    ~Buffer()
+
+    // Deconstructor
+    ~Buffer() { delete[] data; }
+
+    // Copy Constructor
+    Buffer(const Buffer& other_bfr)
     {
-        delete this->data;
+        data = new char[other_bfr.capacity()];
+        bufferLength = other_bfr.length();
+        bufferCapacity = other_bfr.capacity();
+
+        std::memcpy(data, other_bfr.buffer(), other_bfr.length());
     }
 
-    Buffer(Buffer&& bfr)
+    // Copy assignment
+    Buffer& operator=(const Buffer& other_bfr)
     {
-        std::swap( this->data, bfr.data );
-        std::swap( this->length, bfr.length);
+        if (this == &other_bfr)
+            return *this;
+
+        delete[] data;
+        
+        data = new char[other_bfr.capacity()];
+        bufferLength = other_bfr.length();
+        bufferCapacity = other_bfr.capacity();
+
+        std::memcpy(data, other_bfr.buffer(), other_bfr.length());
+
+        return *this;
     }
 
-    int32_t readInt32(int offset)
+    // Move Constructor
+    Buffer(Buffer&& other_bfr)
     {
-        return (int32_t)this->data[offset];
+        data = other_bfr.buffer();
+        bufferLength = other_bfr.length();
+        bufferCapacity = other_bfr.capacity();
+
+        *other_bfr.bufferMutable() = nullptr;
     }
-    int16_t readInt16(int offset)
+
+    // Move Assignment
+    Buffer& operator=(Buffer&& other_bfr)
     {
-        return (int16_t)this->data[offset];
+        data = other_bfr.buffer();
+        bufferLength = other_bfr.length();
+        bufferCapacity = other_bfr.capacity();
+
+        *other_bfr.bufferMutable() = nullptr;
+
+        return *this;
     }
-    int8_t readInt8(int offset)
+
+    // -- Methods
+    template <typename T>
+    T read(std::size_t const offset)
     {
-        return (int8_t)this->data[offset];
+        if (offset + sizeof(T) >= bufferCapacity || offset < 0)
+            throw std::length_error("Can't read out of bounds");
+
+        return static_cast<T>(data[offset]);
     }
 
-    void writeInt32(int32_t number, int offset = -1)
-    {        
-        int appendOffset = offset == -1 ? length : offset;
-
-        memcpy(this->data + appendOffset, &number, sizeof(int32_t));
-
-        if (appendOffset + sizeof(int32_t) > this->length)
-            this->length = appendOffset + sizeof(int32_t);        
-    }
-    void writeInt16(int16_t number, int offset = -1)
+    template <typename T>
+    void write(T const value, std::size_t const _offset = SIZE_MAX)
     {
-        int appendOffset = offset == -1 ? length : offset;
+        std::size_t offset = (_offset == SIZE_MAX) ? bufferLength : _offset;
 
-        memcpy(this->data + appendOffset, &number, sizeof(int16_t));
+        if (offset < 0)
+            throw std::length_error("Can't write to a negative offset");
 
-        if (appendOffset + sizeof(int16_t) > this->length)
-            this->length = appendOffset + sizeof(int16_t);  
-    }
-    void writeInt8(int8_t number, int offset = -1)
-    {
-        int appendOffset = offset == -1 ? length : offset;
+        if (offset + sizeof(T) >= bufferCapacity)
+            allocateBiggerMemory<T>(offset + sizeof(T));
 
-        memcpy(this->data + appendOffset, &number, sizeof(int8_t));
+        std::memcpy(data + offset, &value, sizeof(T));
 
-        if (appendOffset + sizeof(int8_t) > this->length)
-            this->length = appendOffset + sizeof(int8_t);  
-    }
-    void write(const char* buffer, uint32_t length, int offset = -1)
-    {        
-        int appendOffset = offset == -1 ? this->length : offset;
-
-        memcpy(this->data + appendOffset, buffer, length);
-
-        if (appendOffset + length > this->length)
-            this->length = appendOffset + length; 
+        if (bufferLength < offset)
+            bufferLength = offset;
     }
 
-    uint32_t size() { return length; }
-    const char* buffer() { return data; }
+    std::size_t length() const { return bufferLength; }
+    std::size_t capacity() const { return bufferCapacity; }
+    char* buffer() const { return data; }
+    char** bufferMutable() { return &data; }
+
+protected:
+    char* data;
+    std::size_t bufferLength = 0;
+    std::size_t bufferCapacity = 0;
 
 private:
-    char *data;
-    uint32_t length = 0;
+    template <typename T>
+    void allocateBiggerMemory(std::size_t offset)
+    {
+        // allocate new & bigger memory
+        bufferCapacity = (offset + sizeof(T)) * 2;
+        char* new_buffer = new char[bufferCapacity];
+
+        delete[] data;
+        data = new_buffer;
+    }
 };
 
 #endif
